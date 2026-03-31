@@ -45,5 +45,6 @@ const analysisSchema = new Schema<IAnalysis>(
 )
 
 export const Analysis =
-  (mongoose.models.Analysis as ReturnType<typeof model>) ||
-  model('Analysis', analysisSchema)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (mongoose.models.Analysis as any) ||
+  model<IAnalysis>('Analysis', analysisSchema)

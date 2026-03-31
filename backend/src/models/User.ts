@@ -67,4 +67,5 @@ const userSchema = new Schema<IUser>(
   { timestamps: true },
 )
 
-export const User = (mongoose.models.User as ReturnType<typeof model>) || model('User', userSchema)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const User = (mongoose.models.User as any) || model<IUser>('User', userSchema)

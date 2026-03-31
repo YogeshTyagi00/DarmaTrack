@@ -1,10 +1,23 @@
 import { Router, Response, Request, NextFunction } from 'express'
 import multer from 'multer'
-import path from 'path'
 import axios from 'axios'
 import { Analysis } from '../models/Analysis.js'
 import { User } from '../models/User.js'
 import { requireAuth, AuthenticatedRequest } from '../middleware/auth.js'
+import { uploadImage } from '../storage.js'
+
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+
+// Use memory storage — we handle saving ourselves via uploadImage()
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_FILE_SIZE },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) cb(null, true)
+    else cb(new Error('INVALID_MIME_TYPE'))
+  },
+})
 
 function requireApiKey(req: Request, res: Response, next: NextFunction): void {
   const apiKey = req.headers['x-api-key']
@@ -22,39 +35,12 @@ async function dispatchToAiAgent(analysisId: string, imageUrl: string, userId: s
   try {
     const user = await User.findById(userId).lean()
     const skinProfile = user?.skinProfile ?? null
-
     await axios.post(`${AI_AGENT_URL}/analyze`, { analysisId, imageUrl, skinProfile })
   } catch (err) {
     console.error('AI agent dispatch failed, marking analysis as failed:', err)
     await Analysis.findByIdAndUpdate(analysisId, { status: 'failed' })
   }
 }
-
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, 'uploads/')
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname)
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
-    cb(null, `${unique}${ext}`)
-  },
-})
-
-const upload = multer({
-  storage,
-  limits: { fileSize: MAX_FILE_SIZE },
-  fileFilter: (_req, file, cb) => {
-    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      cb(null, true)
-    } else {
-      cb(new Error('INVALID_MIME_TYPE'))
-    }
-  },
-})
 
 const router = Router()
 
@@ -70,9 +56,7 @@ router.post(
       if (err instanceof Error && err.message === 'INVALID_MIME_TYPE') {
         return res.status(400).json({ error: 'Invalid file type. Only JPEG, PNG, and WEBP are allowed.' })
       }
-      if (err) {
-        return next(err)
-      }
+      if (err) return next(err)
       next()
     })
   },
@@ -81,10 +65,9 @@ router.post(
       return res.status(400).json({ error: 'No image file provided.' })
     }
 
-    const backendUrl = process.env.BACKEND_URL ?? `http://localhost:${process.env.PORT ?? 3000}`
-    const imageUrl = `${backendUrl}/uploads/${req.file.filename}`
-
     try {
+      const imageUrl = await uploadImage(req.file.buffer, req.file.mimetype, req.file.originalname)
+
       const analysis = await Analysis.create({
         userId: req.user!.userId,
         imageUrl,
@@ -94,7 +77,6 @@ router.post(
       const analysisId = analysis._id.toString()
       res.status(202).json({ analysisId })
 
-      // Fire-and-forget: dispatch to AI agent after responding to client
       void dispatchToAiAgent(analysisId, imageUrl, req.user!.userId)
       return
     } catch (err) {

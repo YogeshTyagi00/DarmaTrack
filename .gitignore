@@ -5,6 +5,10 @@ dist/
 *.log
 .kiro/
 
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
 # Python
 __pycache__/
 *.pyc

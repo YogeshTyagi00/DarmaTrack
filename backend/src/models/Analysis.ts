@@ -45,5 +45,5 @@ const analysisSchema = new Schema<IAnalysis>(
 )
 
 export const Analysis =
-  (mongoose.models.Analysis as ReturnType<typeof model<IAnalysis>>) ||
-  model<IAnalysis>('Analysis', analysisSchema)
+  (mongoose.models.Analysis as ReturnType<typeof model>) ||
+  model('Analysis', analysisSchema)

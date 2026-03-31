@@ -67,4 +67,4 @@ const userSchema = new Schema<IUser>(
   { timestamps: true },
 )
 
-export const User = (mongoose.models.User as ReturnType<typeof model<IUser>>) || model<IUser>('User', userSchema)
+export const User = (mongoose.models.User as ReturnType<typeof model>) || model('User', userSchema)

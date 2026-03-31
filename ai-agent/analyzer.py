@@ -6,8 +6,8 @@ import os
 
 import httpx
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
-from langchain.output_parsers import PydanticOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 
 # Point pytesseract to the Tesseract executable on Windows
@@ -87,7 +87,7 @@ If you cannot read any ingredients from the image, still provide your best asses
         )
 
         response = await llm.ainvoke([message])
-        result: AnalysisResult = parser.parse(response.content)
+        result: AnalysisResult = parser.parse(response.content)  # type: ignore
         print(f"[INFO] GPT-4o analysis complete for {analysis_id}: {len(result.ingredients)} ingredients, rating={result.rating}")
 
         return {

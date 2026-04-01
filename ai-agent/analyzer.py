@@ -53,7 +53,7 @@ async def analyze_product(
 
     parser = PydanticOutputParser(pydantic_object=AnalysisResult)
 
-   prompt_text = f"""You are a board-certified dermatologist and cosmetic chemist with 20+ years of clinical experience. 
+    prompt_text = f"""You are a board-certified dermatologist and cosmetic chemist with 20+ years of clinical experience. 
 Analyze this skincare product image with the precision of a professional skin consultation.
 
 ## STEP 1: PRODUCT & INGREDIENT IDENTIFICATION

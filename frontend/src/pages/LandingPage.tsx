@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Sparkles, Leaf } from 'lucide-react'
 
+import { apiUrl } from '../utils/api'
+
 function buildGoogleOAuthUrl(): string {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string
   const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI as string
@@ -32,7 +34,7 @@ export default function LandingPage() {
     const code = searchParams.get('code')
     if (!code) return
     setLoading(true)
-    fetch('/api/auth/google', {
+    fetch(apiUrl('/auth/google'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),

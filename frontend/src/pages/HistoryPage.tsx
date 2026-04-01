@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Clock, ChevronRight, Sparkles } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { resolveImageUrl } from '../utils/imageUrl'
+import { apiUrl } from '../utils/api'
 import type { Analysis } from '../types'
 
 const PAGE_LIMIT = 20
@@ -55,7 +56,7 @@ export default function HistoryPage() {
   const fetchPage = useCallback(async (pageNum: number, append: boolean) => {
     if (!token) return
     try {
-      const res = await fetch(`/api/analyses?page=${pageNum}&limit=${PAGE_LIMIT}`, {
+      const res = await fetch(apiUrl(`/analyses?page=${pageNum}&limit=${PAGE_LIMIT}`), {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (!res.ok) { setError(true); return }

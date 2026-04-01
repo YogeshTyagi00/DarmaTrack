@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import useAnalysisPoller from '../hooks/useAnalysisPoller'
 import AnalysisCard from '../components/AnalysisCard'
 import { resolveImageUrl } from '../utils/imageUrl'
+import { apiUrl } from '../utils/api'
 import type { Analysis } from '../types'
 
 function LoadingSkeleton() {
@@ -51,7 +52,7 @@ export default function AnalysisResult() {
     if (!id || !token) return
     void (async () => {
       try {
-        const res = await fetch(`/api/analyses/${id}`, { headers: { Authorization: `Bearer ${token}` } })
+        const res = await fetch(apiUrl(`/analyses/${id}`), { headers: { Authorization: `Bearer ${token}` } })
         if (!res.ok) setFetchError(true)
         else setAnalysis(await res.json())
       } catch { setFetchError(true) }

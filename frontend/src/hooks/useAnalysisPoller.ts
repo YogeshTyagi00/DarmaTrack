@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { Analysis } from '../types'
 import { useAuth } from '../context/AuthContext'
+import { apiUrl } from '../utils/api'
 
 const POLL_INTERVAL_MS = 5000
 const TERMINAL_STATUSES = new Set<Analysis['status']>(['completed', 'unreadable', 'failed'])
@@ -34,7 +35,7 @@ function useAnalysisPoller(
     if (!analysisId || !token || !activeRef.current) return
 
     try {
-      const res = await fetch(`/api/analyses/${analysisId}`, {
+      const res = await fetch(apiUrl(`/analyses/${analysisId}`), {
         headers: { Authorization: `Bearer ${token}` },
       })
 

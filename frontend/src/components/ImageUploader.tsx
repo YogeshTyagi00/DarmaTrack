@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
+import { apiUrl } from '../utils/api'
+
 const ACCEPTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 
@@ -65,7 +67,7 @@ export default function ImageUploader({ onAnalysisCreated }: ImageUploaderProps)
       const formData = new FormData()
       formData.append('image', selectedFile)
 
-      const res = await fetch('/api/analyses', {
+      const res = await fetch(apiUrl('/analyses'), {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,

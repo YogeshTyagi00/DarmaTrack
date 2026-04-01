@@ -4,6 +4,8 @@ import SkinProfileForm from '../components/SkinProfileForm'
 import { useAuth } from '../context/AuthContext'
 import type { SkinProfile } from '../types'
 
+import { apiUrl } from '../utils/api'
+
 export default function OnboardingFlow() {
   const { token, user, login } = useAuth()
   const navigate = useNavigate()
@@ -15,7 +17,7 @@ export default function OnboardingFlow() {
     setErrorMessage(null)
 
     try {
-      const res = await fetch('/api/users/me/profile', {
+      const res = await fetch(apiUrl('/users/me/profile'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
